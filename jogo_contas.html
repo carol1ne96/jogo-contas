@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Contas Básicas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #00d4ff;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        #conta {
+            font-size: 24px;
+            background-color: #2c2c2c;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin: 20px 0;
+        }
+        #resposta {
+            padding: 12px;
+            font-size: 18px;
+            border: 2px solid #00d4ff;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            width: 150px;
+            margin-right: 10px;
+            outline: none;
+        }
+        #enviar {
+            padding: 12px 30px;
+            font-size: 18px;
+            background-color: #00ff88;
+            color: #1a1a1a;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        #enviar:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0, 255, 136, 0.2);
+        }
+        #mensagem {
+            font-size: 20px;
+            margin: 20px 0;
+            color: #00ff88;
+        }
+        #mensagem.errado {
+            color: #ff4d4d;
+        }
+        #imagem {
+            max-width: 200px;
+            margin: 20px 0;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        #placar {
+            font-size: 18px;
+            background-color: #2c2c2c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        #placar span.acertos {
+            color: #00ff88;
+            font-weight: 600;
+        }
+        #placar span.erros {
+            color: #ff4d4d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo de Contas Básicas</h1>
+    <div id="conta"></div>
+    <div>
+        <input type="number" id="resposta" placeholder="Digite sua resposta">
+        <button id="enviar" onclick="verificarResposta()">Enviar</button>
+    </div>
+    <div id="mensagem"></div>
+    <img id="imagem" src="" alt="Imagem de resultado">
+    <div id="placar">Acertos: <span class="acertos">0</span> | Erros: <span class="erros">0</span></div>
+
+    <script>
+        let acertos = 0;
+        let erros = 0;
+        let contaAtual = {};
+        const imagemAcertou = "https://i.ibb.co/whv2QwZ3/IMG-1381.jpg";
+        const imagemErrou = "https://i.ibb.co/Q77vFP2y/IMG-1380.jpg";
+
+        function gerarConta() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            const operacao = ["+", "-", "*", "/"][Math.floor(Math.random() * 4)];
+            
+            let resposta;
+            if (operacao === "+") {
+                resposta = num1 + num2;
+            } else if (operacao === "-") {
+                resposta = num1 - num2;
+            } else if (operacao === "*") {
+                resposta = num1 * num2;
+            } else {
+                const tempNum1 = num2 * (Math.floor(Math.random() * 5) + 1);
+                resposta = tempNum1 / num2;
+                return { conta: `${tempNum1} / ${num2}`, resposta: resposta };
+            }
+            
+            return { conta: `${num1} ${operacao} ${num2}`, resposta: resposta };
+        }
+
+        contaAtual = gerarConta();
+        document.getElementById("conta").textContent = `Quanto é ${contaAtual.conta}?`;
+
+        function verificarResposta() {
+            const respostaUsuario = parseFloat(document.getElementById("resposta").value);
+            const mensagem = document.getElementById("mensagem");
+            const imagem = document.getElementById("imagem");
+            const placar = document.getElementById("placar");
+
+            if (isNaN(respostaUsuario)) {
+                mensagem.textContent = "Por favor, digite um número válido!";
+                mensagem.classList.remove("errado");
+                imagem.style.display = "none";
+                return;
+            }
+
+            if (respostaUsuario === contaAtual.resposta) {
+                mensagem.textContent = "Correto! 🎉";
+                mensagem.classList.remove("errado");
+                imagem.src = imagemAcertou;
+                imagem.style.display = "block";
+                acertos++;
+            } else {
+                mensagem.textContent = `Errado! 😢 O correto é ${contaAtual.resposta}`;
+                mensagem.classList.add("errado");
+                imagem.src = imagemErrou;
+                imagem.style.display = "block";
+                erros++;
+            }
+
+            placar.innerHTML = `Acertos: <span class="acertos">${acertos}</span> | Erros: <span class="erros">${erros}</span>`;
+            document.getElementById("resposta").value = "";
+
+            setTimeout(() => {
+                mensagem.textContent = "";
+                imagem.style.display = "none";
+                contaAtual = gerarConta();
+                document.getElementById("conta").textContent = `Quanto é ${contaAtual.conta}?`;
+            }, 2000);
+        }
+
+        document.getElementById("resposta").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                verificarResposta();
+            }
+        });
+    </script>
+</body>
+</html>
